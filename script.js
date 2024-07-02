@@ -111,5 +111,47 @@ function updateMenu(articles) {
     });
 }
 
+// Function to fetch article details based on ID from Supabase (used in article.html)
+async function fetchArticleDetails() {
+    try {
+        // Get article ID from URL query parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const articleId = urlParams.get('id');
+
+        // Fetch article details from Supabase
+        let { data: article, error } = await supabaseClient
+            .from('articles')
+            .select('*')
+            .eq('id', articleId)
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        displayArticle(article);
+    } catch (error) {
+        console.error('Error fetching article details:', error.message);
+    }
+}
+
+// Function to display article details on the page (used in article.html)
+function displayArticle(article) {
+    const articleTitleElement = document.getElementById('articleTitle');
+    const articleContentElement = document.getElementById('articleContent');
+
+    if (articleTitleElement && articleContentElement) {
+        articleTitleElement.textContent = article.title;
+        articleContentElement.textContent = article.content;
+    } else {
+        console.error('Article title or content element not found.');
+    }
+}
+
 // Load articles when the page loads
 fetchArticles();
+
+// If article.html is loaded, fetch and display the article details
+if (window.location.pathname.includes('article.html')) {
+    fetchArticleDetails();
+}
